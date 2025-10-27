@@ -1,0 +1,49 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'index' %}">
+      Smart Events 
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'index' %}#seccion-eventos">Eventos</a>
+        </li>
+        </ul>
+      
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'mis_eventos' %}">Mis Eventos</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              Hola, {{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if user.is_staff %}
+                <li><a class="dropdown-item" href="{% url 'admin:index' %}">Panel Admin</a></li>
+                <li><hr class="dropdown-divider"></li>
+              {% endif %}
+              <li>
+                <form action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                </form>
+              </li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-primary text-white" href="{% url 'register' %}">Registrarse</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
