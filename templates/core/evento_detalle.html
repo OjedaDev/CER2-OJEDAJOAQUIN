@@ -33,25 +33,34 @@
                 </ul>
             </div>
             <div class="card-footer p-3">
-                {% if user.is_authenticated %}
-                    {% if ya_inscrito %}
-                        <div class="alert alert-success text-center mb-0">
-                            ¡Ya estás inscrito!
-                            <a href="{% url 'mis_eventos' %}" class="alert-link">Ver mis eventos</a>
-                        </div>
-                    {% elif evento.plazas_disponibles > 0 %}
-                        <form action="{% url 'inscribir_evento' evento.id %}" method="POST" class="d-grid">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-lg">¡Inscribirme!</button>
-                        </form>
-                    {% else %}
-                        <div class="alert alert-danger text-center mb-0">¡Plazas Agotadas!</div>
-                    {% endif %}
-                {% else %}
-                    <div class="alert alert-info text-center mb-0">
-                        <a href="{% url 'login' %}?next={{ request.path }}">Inicia sesión</a> para inscribirte.
+                {% if evento_finalizado %}
+                    <div class="alert alert-danger text-center mb-0">
+                        ¡Este evento ya finalizó!
                     </div>
-                {% endif %}
+                    
+                            {% elif user.is_authenticated %}
+                                {% if ya_inscrito %}
+                                    <div class="alert alert-success text-center mb-0">
+                                        ¡Ya estás inscrito!
+                                        <a href="{% url 'mis_eventos' %}" class="alert-link">Ver mis eventos</a>
+                                    </div>
+                                {% elif evento.plazas_disponibles > 0 %}
+                                    <form action="{% url 'inscribir_evento' evento.id %}" method="POST" class="d-grid">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-lg">¡Inscribirme!</button>
+                                    </form>
+                                {% else %}
+                                    <div class="alert alert-danger text-center mb-0">¡Plazas Agotadas!</div>
+                                {% endif %}
+                            
+                            {% else %}
+                        <div class="alert alert-info text-center mb-0">
+                            <a href="{% url 'login' %}?next={{ request.path }}">Inicia sesión</a> para inscribirte.
+                        </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

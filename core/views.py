@@ -5,28 +5,32 @@ from django.contrib import messages
 from .models import Evento, Inscripcion
 from django.db import transaction 
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 def index(request):
 
+    now = timezone.now()
+
+    eventos_list = Evento.objects.filter(
+        plazas_disponibles__gt=0,
+        fecha_hora__gt=now  
+    ).order_by('fecha_hora')
+
+
     eventos_list = Evento.objects.filter(plazas_disponibles__gt=0).order_by('fecha_hora')
 
-
-    featured_evento = eventos_list.first() 
-    
- 
     otros_eventos = eventos_list
     
+    featured_evento = eventos_list.first() 
 
     eventos_totales = Evento.objects.count()
     usuarios_registrados = User.objects.count()
     inscripciones_totales = Inscripcion.objects.count()
 
     context = {
-        'featured_evento': featured_evento,
+        'featured_evento': featured_evento, 
         'otros_eventos': otros_eventos,     
-        
-
         'stats_eventos': eventos_totales,
         'stats_usuarios': usuarios_registrados,
         'stats_inscripciones': inscripciones_totales,
@@ -39,6 +43,14 @@ def evento_detalle(request, evento_id):
     ya_inscrito = False
     if request.user.is_authenticated:
         ya_inscrito = Inscripcion.objects.filter(usuario=request.user, evento=evento).exists()
+
+    evento_finalizado = evento.fecha_hora < timezone.now()
+    context = {
+        'evento': evento,
+        'ya_inscrito': ya_inscrito,
+        'evento_finalizado': evento_finalizado 
+    }
+
     return render(request, 'core/evento_detalle.html', {
         'evento': evento,
         'ya_inscrito': ya_inscrito
@@ -51,6 +63,9 @@ def inscribir_evento(request, evento_id):
     if request.method == 'POST':
         evento = get_object_or_404(Evento, id=evento_id)
         
+        if evento.fecha_hora < timezone.now():
+            messages.error(request, 'Este evento ya ha finalizado. No puedes inscribirte.')
+            return redirect('evento_detalle', evento_id=evento.id)
         
         if Inscripcion.objects.filter(usuario=request.user, evento=evento).exists():
             messages.warning(request, 'Ya estás inscrito en este evento.')
